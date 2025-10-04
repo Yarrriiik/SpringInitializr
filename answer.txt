@@ -1,0 +1,177 @@
+1. Что такое DAO?
+
+Идея: отдельный «класс-дверь» к базе. Вся работа с БД (CRUD, SQL)
+спрятана внутри DAO, чтобы бизнес‑код не знал про SQL и соединения.
+
+В нашем проекте роль DAO выполняет интерфейс репозитория
+CarRepository и слой сервиса CarService: UI не пишет SQL,
+он зовёт сервис, а сервис — репозиторий.
+
+public interface CarRepository extends JpaRepository<Car, Long> {
+    List<Car> findByBrandIgnoreCase(String brand);
+}
+
+
+2. Каким образом Spring облегчает разработку с точки зрения
+обработки исключений при работе с базами данных?
+
+JDBC — низкоуровневый API для сырых SQL: открыть Connection,
+PreparedStatement, ResultSet и т.д.
+
+JPA — стандарт для ORM: работать с объектами (Entity), а SQL
+и маппинг делает провайдер (например, Hibernate).
+
+Spring переводит разные SQL/JDBC/JPA ошибки в единый
+иерархический тип DataAccessException (не checked),
+освобождает ресурсы и даёт @Transactional для транзакций.
+
+Код (мы не пишем try/catch SQLException):
+
+"""@Transactional: «сделай это в одной транзакции». Если
+всё прошло — коммит (сохранить), если ошибка — откат
+(ничего не поменять)."""
+
+@Service
+@Transactional
+public class CarService {
+    private final CarRepository repo;
+    public Car create(String brand, String model, String color, Integer year, BigDecimal price) {
+        return repo.save(new Car(brand, model, color, year, price));
+    }
+}
+
+
+
+3. Объясните основной принцип паттерна "Шаблонный метод".
+
+Каркас алгоритма фиксирован, вариативные шаги переопределяются.
+
+Аналогичная идея в нашем ConsoleUI: есть неизменный «каркас»
+цикла меню run(), а действия для пунктов меняются через
+методы createCar/listAll/updateCar/...
+
+public void run() {
+    while (true) {
+        printMenu();
+        String choice = sc.nextLine().trim();
+        switch (choice) {
+            case "1" -> createCar(sc);
+            // ...
+        }
+    }
+}
+
+
+4. Что такое шаблон доступа к данным?
+
+Разделение слоёв: UI → Service → Repository (БД).
+В проекте это прямой трёхслойный проход:
+Слои: UI → Service → Repository → DB. UI не знает про БД,
+Service — про бизнес‑логику, Repository — про хранение.
+
+// ConsoleUI -> CarService -> CarRepository
+Car c = service.create(brand, model, color, year, price);
+
+
+
+
+5. Как создать источник данных JDBC?
+
+В Spring Boot создаётся автоматически из application.properties.
+
+Наш конфиг:
+
+text
+spring.datasource.url=jdbc:postgresql://localhost:5432/car_db
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+
+
+6.Как пользоваться JdbcTemplate?
+
+Внедряешь JdbcTemplate, пишешь SQL и маппер.
+Открытие/закрытие соединений и перевод исключений — на Spring.
+
+Решение: JdbcTemplate — «шаблон-помощник». Ты пишешь только
+SQL и как превратить строку результата в объект
+(это и есть маппер). Всё остальное (соединения, закрытия,
+ошибки) — на нём.
+
+jdbc.query(
+  "select id, brand, model, color, year, price from cars",
+  (rs, i) -> {
+    Car c = new Car(
+      rs.getString("brand"), rs.getString("model"), rs.getString("color"),
+      rs.getInt("year"), rs.getBigDecimal("price"));
+    // проставим id
+    var f = Car.class.getDeclaredField("id"); f.setAccessible(true); f.set(c, rs.getLong("id"));
+    return c;
+  }
+);
+
+
+7. Что такое Hibernate?
+
+Hibernate — фреймворк для объектно-реляционного отображения
+(ORM) баз данных в языке программирования Java.
+Позволяет автоматически преобразовывать объекты Java
+в записи базы данных и обратно, что облегчает управление данными.
+
+8. Что такое репозиторий Spring Data?
+
+Репозиторий в Spring Data — это слой приложения,
+который отвечает за взаимодействие с базой данных.
+Он абстрагирует базовые операции вроде создания, чтения,
+обновления и удаления данных (так называемые CRUD-операции).
+
+9. Поясните механизм "Query methods".
+
+Query methods — это методы в интерфейсе репозитория,
+которые определяют запросы к базе данных.
+
+Имя метода должно следовать определённому соглашению:
+начинается с ключевого слова (find, read, get и др.) и
+условия (например, ByLastName или ByAgeGreaterThan).
+Spring Data JPA анализирует имя метода и создаёт соответствующий
+ запрос на основе свойств сущности и указанных условий.
+Параметры можно передать в запрос, добавив их в аргументы
+метода. Параметры соответствуют условиям в имени метода по порядку.
+Тип возврата метода может быть сущностью, коллекцией сущностей,
+ Optional или количеством, в зависимости от начального ключевого
+ слова имени метода.
+
+ ИЛИ
+
+ В Spring Data ты пишешь имя метода «по‑английски», а он строит под него SQL.
+
+ Примеры:
+
+ findByColorIgnoreCase("") → where lower(color) = lower(?)
+
+ findByPriceLessThanEqual(x) → where price <= ?
+
+ findByYearBetween(min, max) → where year between ? and ?
+
+ Наш код:
+
+ java
+ List<Car> findByPriceLessThanEqual(BigDecimal price);
+ List<Car> findByColorIgnoreCase(String color);
+
+10. Определение понятия ORM.
+
+Это способ работать с базой как с объектами языка, а не писать
+SQL руками.
+
+Класс соответствует таблице, поле — колонке, объект — строке;
+фреймворк сам делает нужные SQL под капотом.
+
+Пример на нашем проекте:
+Класс Car помечен как сущность — значит он «привязан» к
+таблице cars; вызов repo.save(new Car(...)) сам превратится
+во вставку в БД.
+
+ORM — это «прослойка», которая сопоставляет классы и их поля
+с таблицами и колонками и автоматически переводит операции
+над объектами в SQL. Благодаря этому код работает с объектами,
+а не с сырыми запросами, и рутинный SQL делает фреймворк.
