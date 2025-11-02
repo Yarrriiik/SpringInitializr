@@ -1,5 +1,6 @@
 package com.example.carapp.security;
 
+import static org.springframework.security.config.Customizer.withDefaults;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -19,6 +20,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/register", "/css/**").permitAll()
+                        // REST под Basic Auth
+                        .requestMatchers("/api/**").authenticated()
+                        // HTML-часть как было
                         .requestMatchers(HttpMethod.GET, "/cars", "/cars/search", "/cars/{id}/edit").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.POST, "/cars", "/cars/{id}", "/cars/{id}/delete").hasRole("ADMIN")
                         .anyRequest().authenticated()
@@ -28,6 +32,7 @@ public class SecurityConfig {
                         .defaultSuccessUrl("/cars", true)
                         .failureUrl("/login?error")
                 )
+                .httpBasic(withDefaults()) // <-- включили Basic Auth
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout").permitAll()
@@ -35,4 +40,5 @@ public class SecurityConfig {
                 .userDetailsService(uds);
         return http.build();
     }
+
 }

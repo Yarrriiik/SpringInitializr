@@ -35,7 +35,7 @@ public class CarController {
     @PostMapping
     public String create(@Valid @ModelAttribute("car") Car car, BindingResult br) {
         if (br.hasErrors()) return "cars/form";
-        service.create(car.getBrand(), car.getModel(), car.getColor(), car.getYear(), car.getPrice());
+        service.create(car);
         return "redirect:/cars";
     }
 

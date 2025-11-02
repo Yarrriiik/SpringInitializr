@@ -14,11 +14,35 @@ import java.util.Optional;
 public class CarService {
     private final CarRepository repo;
 
+    public Optional<Car> update(Long id, Car newData) {
+        return repo.findById(id).map(car -> {
+            // копируем ТОЛЬКО не-null значения — или просто все поля, если newData "полный"
+            car.setBrand(newData.getBrand());
+            car.setModel(newData.getModel());
+            car.setColor(newData.getColor());
+            car.setYear(newData.getYear());
+            car.setPrice(newData.getPrice());
+            return repo.save(car);
+        });
+    }
+
+    public boolean delete(Long id) {
+        if (!repo.existsById(id)) return false;
+        repo.deleteById(id);
+        return true;
+    }
+
+
     public CarService(CarRepository repo) { this.repo = repo; }
 
-    public Car create(String brand, String model, String color, Integer year, BigDecimal price) {
-        return repo.save(new Car(brand, model, color, year, price));
+//    public Car create(String brand, String model, String color, Integer year, BigDecimal price) {
+//        return repo.save(new Car(brand, model, color, year, price));
+//    }
+
+    public Car create(Car car) {
+        return repo.save(car);
     }
+
 
     @Transactional(readOnly = true)
     public List<Car> findAll() { return repo.findAll(); }
@@ -35,8 +59,6 @@ public class CarService {
         if (price != null) c.setPrice(price);
         return repo.save(c);
     }
-
-    public void delete(Long id) { repo.deleteById(id); }
 
     @Transactional(readOnly = true)
     public List<Car> searchByBrand(String brand) { return repo.findByBrandIgnoreCase(brand); }
