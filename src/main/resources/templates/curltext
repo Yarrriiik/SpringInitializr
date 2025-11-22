@@ -1,0 +1,27 @@
+GET по id:
+
+curl -i -u admin:admin123 http://localhost:8080/api/cars/1
+
+POST (создать запись):
+
+Git Bash:
+curl -i -u admin:admin123 -H "Content-Type: application/json" -d '{ "brand":"VW","model":"Polo","color":"white","year":2021,"price":525252 }' http://localhost:8080/api/cars
+
+В ответе увидишь JSON созданной записи с id. Запомни id.
+
+PUT (обновить запись):
+
+Подставь id из шага POST:
+curl -i -u admin:admin123 -X PUT -H "Content-Type: application/json" -d '{ "brand":"VW","model":"Polo","color":"black","year":2021,"price":560000 }' http://localhost:8080/api/cars/4
+
+GET по id (проверка после PUT):
+
+curl -i -u admin:admin123 http://localhost:8080/api/cars/4
+
+DELETE (удалить запись):
+
+curl -i -u admin:admin123 -X DELETE http://localhost:8080/api/cars/4
+
+Повторный GET по id (должен быть 404):
+
+curl -i -u admin:admin123 http://localhost:8080/api/cars/<ID>

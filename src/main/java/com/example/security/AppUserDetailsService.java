@@ -1,7 +1,7 @@
-package com.example.carapp.security;
+package com.example.security;
 
-import com.example.carapp.domain.AppUser;
-import com.example.carapp.repository.AppUserRepository;
+import com.example.domain.AppUser;
+import com.example.repository.AppUserRepository;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;

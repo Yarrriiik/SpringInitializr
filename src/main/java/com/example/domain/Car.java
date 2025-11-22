@@ -1,4 +1,4 @@
-package com.example.carapp.domain;
+package com.example.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;

@@ -1,7 +1,11 @@
-package com.example.carapp.web;
+package com.example.web;
 
-import com.example.carapp.domain.Car;
-import com.example.carapp.service.CarService;
+import com.example.service.JmsNotificationService;
+import java.security.Principal;
+
+
+import com.example.domain.Car;
+import com.example.service.CarService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -17,8 +21,12 @@ import java.util.List;
 @RequestMapping("/cars")
 public class CarController {
     private final CarService service;
+    private final JmsNotificationService jmsNotificationService;
 
-    public CarController(CarService service) { this.service = service; }
+    public CarController(CarService service, JmsNotificationService jmsNotificationService) {
+        this.service = service;
+        this.jmsNotificationService = jmsNotificationService;
+    }
 
     @GetMapping
     public String list(Model model) {
@@ -73,5 +81,19 @@ public class CarController {
         model.addAttribute("maxPrice", maxPrice);
         model.addAttribute("brand", brand);
         return "cars/list";
+    }
+
+    @GetMapping("/{id}/buy")
+    public String buyCar(@PathVariable Long id, Principal principal) {
+        Car car = service.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        String username = (principal != null) ? principal.getName() : "anonymous";
+
+        jmsNotificationService.sendOrder(
+                "User " + username + " wants to buy car id=" + car.getId()
+        );
+
+        return "redirect:/cars";
     }
 }

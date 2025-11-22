@@ -1,7 +1,7 @@
-package com.example.carapp.web;
+package com.example.web;
 
-import com.example.carapp.domain.AppUser;
-import com.example.carapp.repository.AppUserRepository;
+import com.example.domain.AppUser;
+import com.example.repository.AppUserRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

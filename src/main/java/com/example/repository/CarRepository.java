@@ -1,6 +1,6 @@
-package com.example.carapp.repository;
+package com.example.repository;
 
-import com.example.carapp.domain.Car;
+import com.example.domain.Car;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.math.BigDecimal;

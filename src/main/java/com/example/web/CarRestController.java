@@ -1,7 +1,7 @@
-package com.example.carapp.web;
+package com.example.web;
 
-import com.example.carapp.domain.Car;
-import com.example.carapp.service.CarService;
+import com.example.domain.Car;
+import com.example.service.CarService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

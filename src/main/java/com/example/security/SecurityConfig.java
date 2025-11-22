@@ -1,4 +1,4 @@
-package com.example.carapp.security;
+package com.example.security;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 import org.springframework.context.annotation.Configuration;

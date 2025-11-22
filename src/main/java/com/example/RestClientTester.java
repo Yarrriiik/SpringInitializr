@@ -1,7 +1,7 @@
-package com.example.carapp;
+package com.example;
 
 import java.math.BigDecimal;
-import com.example.carapp.domain.Car;
+import com.example.domain.Car;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
@@ -39,16 +39,16 @@ public class RestClientTester {
         Car afterPut = rest.exchange(url + "/" + created.getId(), HttpMethod.GET, new HttpEntity<>(headers), Car.class).getBody();
         System.out.println("After PUT: " + afterPut);
 
-// DELETE
-        rest.exchange(url + "/" + created.getId(), HttpMethod.DELETE, new HttpEntity<>(headers), Void.class);
-
-// Проверка после DELETE — ожидаем 404
-        try {
-            rest.exchange(url + "/" + created.getId(), HttpMethod.GET, new HttpEntity<>(headers), Car.class);
-            System.out.println("Unexpected: resource still exists");
-        } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
-            System.out.println("After DELETE: 404 Not Found (expected)");
-        }
-
+//// DELETE
+//        rest.exchange(url + "/" + created.getId(), HttpMethod.DELETE, new HttpEntity<>(headers), Void.class);
+//
+//// Проверка после DELETE — ожидаем 404
+//        try {
+//            rest.exchange(url + "/" + created.getId(), HttpMethod.GET, new HttpEntity<>(headers), Car.class);
+//            System.out.println("Unexpected: resource still exists");
+//        } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
+//            System.out.println("After DELETE: 404 Not Found (expected)");
+//        }
+//
     }
 }
