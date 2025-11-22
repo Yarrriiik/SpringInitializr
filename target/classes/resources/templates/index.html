@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Главная</title></head>
+<body>
+<h1>Добро пожаловать</h1>
+<ul>
+    <li><a th:href="@{/cars}">Список автомобилей</a></li>
+    <li><a th:href="@{/cars/new}">Добавить автомобиль</a></li>
+    <li>
+        <form th:action="@{/cars/search}" method="get">
+            Поиск по бренду: <input type="text" name="brand"/>
+            <button type="submit">Искать</button>
+        </form>
+    </li>
+</ul>
+</body>
+</html>

@@ -1,6 +1,7 @@
-package com.example.carapp.domain;
+package com.example.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 
 @Entity
@@ -10,18 +11,24 @@ public class Car {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Бренд обязателен")
     @Column(nullable = false)
     private String brand;
 
+    @NotBlank(message = "Модель обязательна")
     @Column(nullable = false)
     private String model;
 
+    @NotBlank(message = "Цвет обязателен")
     @Column(nullable = false)
     private String color;
 
+    @Min(value = 1886, message = "Год не может быть меньше 1886")
+    @Max(value = 2100, message = "Год слишком большой")
     @Column(nullable = false)
     private Integer year;
 
+    @DecimalMin(value = "0.01", message = "Цена должна быть > 0")
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
 
